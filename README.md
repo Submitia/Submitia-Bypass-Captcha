@@ -26,4 +26,5 @@ Sponsors:
 - http://freereprintables.com
 - http://embedarticles.com
 - http://contenthugs.com
+- http://www.seopanel.in
 
