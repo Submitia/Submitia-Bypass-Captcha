@@ -18,13 +18,12 @@ Usage
 	//print $submitia->balance('sptest');
 	print $submitia->decode($image);	
 ```
-----
 
 ----
 Sponsors:
 
-http://www.isnare.com
-http://freereprintables.com
-http://embedarticles.com
-http://contenthugs.com
-----
+- http://www.isnare.com
+- http://freereprintables.com
+- http://embedarticles.com
+- http://contenthugs.com
+
