@@ -6,16 +6,13 @@ Version 1.2
 Author: Shaun Henry
 Copyright Henry Ranch LLC 2009.  All rights reserved.  http://www.henryranch.net
 
-
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
 * You must provide a link back to www.henryranch.net on the site on which this software is used.
 * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 in the documentation and/or other materials provided with the distribution.
 * Neither the name of the HenryRanch LCC nor the names of its contributors nor authors may be used to endorse or promote products derived 
 from this software without specific prior written permission.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
@@ -24,11 +21,9 @@ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 DEALINGS IN THE SOFTWARE.  
 */
-
 class TinyHttpClient 
 {
     var $debug = false;
-
    /*
         Create a GET request header for the given host and filename.  If authorization is required, then it must be the standard HTTP 1.0 Basic Authentication compliant string.
         @param $host  - the host name of the remote server
@@ -46,7 +41,6 @@ class TinyHttpClient
         "\r\n";
         return $request;
     }
-
    /*
         Create a POST request header for the given host and filename.  If authorization is required, then it must be the standard HTTP 1.0 Basic Authentication compliant string.
         @param $host  - the host name of the remote server
@@ -70,7 +64,6 @@ class TinyHttpClient
         $data . "\r\n";
         return $request;
     }
-
    /*
         Create a POST request header for the given host and filename.  If authorization is required, then it must be the standard HTTP 1.0 Basic Authentication compliant string.
         @param $host  - the host name of the remote server
@@ -88,13 +81,10 @@ class TinyHttpClient
     function getRemoteFile($host, $port, $remoteFilename, $usernameColonPassword, $receiveBufferSize, $mode, $fromEmail, $postData, $localFilename) 
     {
         $fileData = "";
-
         if($remoteFilename == "")
             $remoteFilename = "/";
-
         if($port == -1)
             $port = 80;
-
         $timeout = 30;
         $sHandle = fsockopen($host, $port, $errno, $errstr, $timeout);
         if (!$sHandle) 
@@ -107,7 +97,6 @@ class TinyHttpClient
         {
             $authorization = "Authorization: Basic " . base64_encode($usernameColonPassword) . "\r\n";
         }
-
         if($mode == "get")
         {
             $request = $this->generateGetRequest($host, $remoteFilename, $authorization);
@@ -118,9 +107,7 @@ class TinyHttpClient
         }
         if($this->debug)
             print "Sending request string:<br>$request<br><br>";
-
         fwrite($sHandle, $request);
-
         $data = "";
         $buf = "";
         do
@@ -168,5 +155,105 @@ class TinyHttpClient
             
         }
     }
+	
+	function upload($host, $port, $remoteFilename, $usernameColonPassword, $receiveBufferSize, $mode, $fromEmail, $postData, $localFilename, $imageFilename, $imageName, $imageType) {
+        $fileData = "";
+        if($remoteFilename == "")
+            $remoteFilename = "/";
+        if($port == -1)
+            $port = 80;
+        $timeout = 30;
+
+		$fn = $imageFilename;
+		$fna = $imageName;
+		$content_type = $imageType;
+		$boundary = "GATTACA";
+		$content_file = join("", file($fn)); 
+		$data = "--$boundary\r\n";
+		foreach($postData as $key=>$value) {
+				if (count($value)==1) {
+								$data.="Content-Disposition: form-data; name="$key"\r\n\r\n";
+								$data.="$value\r\n--$boundary\r\n";
+				}
+		}
+		$data.="Content-Disposition: form-data; name="imgfile"; filename="$fna"\r\n";
+		$data.="Content-Type: $content_type\r\n\r\n$content_file\r\n--$boundary--\r\n\r\n";
+		$lenga=strlen($data);
+		$msg ="POST $path HTTP/1.0\r\n";
+		$msg.="Content-Type: multipart/form-data; boundary=$boundary\r\n";
+		$msg.="Content-Length: $lenga\r\n\r\n";
+		$sHandle = fsockopen($host, $port, $errno, $errstr, $timeout);
+		fputs($sHandle,$msg.$data);	
+		        
+        if (!$sHandle) 
+        {
+            return "<font color=red><SOCKET ERROR $errno: $errstr</font><br>";	
+        }
+            
+        $authorization = "";
+        if($usernameColonPassword != "")
+        {
+            $authorization = "Authorization: Basic " . base64_encode($usernameColonPassword) . "\r\n";
+        }
+        if($mode == "get")
+        {
+            $request = $this->generateGetRequest($host, $remoteFilename, $authorization);
+        }
+        else if($mode == "post")
+        {
+            $request = $this->generatePostRequest($host, $remoteFilename, $authorization, $fromEmail, $postData);
+        }
+        if($this->debug)
+            print "Sending request string:<br>$request<br><br>";
+        fwrite($sHandle, $request);
+        $data = "";
+        $buf = "";
+        do
+        {
+            $buf = fread($sHandle, $receiveBufferSize);
+            if($buf != "")
+            {
+                if($this->debug) print "READ: <br>$buf<br><br>";
+                $data .= $buf;
+            }
+        } while($buf != "");
+        
+        fclose($sHandle);
+        $dataArray = explode("\r\n\r\n", $data);
+        $numElements = count($dataArray);
+        $body = "";
+        for($i = 1; $i <= $numElements; $i++)
+        {
+            $body .= $dataArray[$i];
+            if($this->debug) print "body loop $i:<br>$body<br> ";
+        }
+        if($this->debug)
+            print "<br><br>dataArray len is ".count($dataArray).".<br><br>".
+                "header is:<br>".$dataArray[0]."<br><br>".
+                "body is:<br>".$body."<br>";
+                
+        if($localFilename == "")
+        {
+            return $body;
+        }
+        else
+        {
+            if($this->debug) print "writing to local file: $localFilename<br>";
+            $fHandle = fopen($localFilename, 'w+');
+            if($fHandle) 
+            {
+                fwrite($fHandle, $body);
+                fclose($fHandle);
+                return "remote file saved to: <a href=$localFilename target=_blank>$localFilename</a><br>";
+            }
+            else
+            {
+                return "<font color=red><FILE ERROR cannot write to file: $localFilename</font><br>";	
+            }
+            
+        }			
+		
+	}
+	
 }
 ?>

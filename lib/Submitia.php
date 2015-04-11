@@ -58,6 +58,19 @@ class Submitia extends TinyHttpClient {
 		$ret = $this->getRemoteFile($this->host, $this->port, $remoteFile, $this->basicAuthUsernameColonPassword, $this->bufferSize, $this->mode, $this->fromEmail, $this->postData, $this->localFile);
 		return $ret;
 	}	
+	
+	public function upload($catpcha) {
+		$remoteFile = $this->remoteFile;
+		$this->postData["p"] = "upload";
+		$this->postData["captcha"] = "@".$captcha;
+		$this->postData["key"] = $this->token;
+		$this->postData["secret"] = $this->secret;		
+		$imageFilename = $catpcha;
+		$imageName = basename($catpcha);
+		$imageType = getimagesize($imageFilename);
+		$ret = $this->upload($this->host, $this->port, $remoteFile, $this->basicAuthUsernameColonPassword, $this->bufferSize, $this->mode, $this->fromEmail, $this->postData, $this->localFile, $imageFilename, $imageName, $imageType['mime']);
+		return $ret;				
+	}
 
 }
 
