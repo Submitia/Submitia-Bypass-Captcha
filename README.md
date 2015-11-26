@@ -22,9 +22,6 @@ Usage
 ----
 Sponsors:
 
-- http://www.isnare.com
-- http://freereprintables.com
-- http://embedarticles.com
-- http://contenthugs.com
-- http://www.seopanel.in
-
+- http://www.captchasolutions.com/
+- https://www.isnare.com/
+- https://articlefr.cf/
