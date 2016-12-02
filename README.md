@@ -10,8 +10,8 @@ Usage
 	
 	$image = 'http://www.captchacreator.com/files/captchac_code.php';
 	
-	$key = "[<YOUR API KEY]"; // Get your own key at http://www.submitia.com/de-captcha.php
-	$secret = "[<YOUR SECRET KEY]"; // Get your own key at http://www.submitia.com/de-captcha.php
+	$key = "[<YOUR API KEY]"; // Get your own key at http://www.solvecaptchas.com/
+	$secret = "[<YOUR SECRET KEY]"; // Get your own key at http://www.solvecaptchas.com/
 	
 	$submitia = new Submitia($key, $secret);
 	
@@ -22,6 +22,7 @@ Usage
 ----
 Sponsors:
 
-- http://www.captchasolutions.com/
+- https://www.captchasolutions.com/
 - https://www.isnare.com/
 - https://articlefr.cf/
+- http://www.solvecaptchas.com/
